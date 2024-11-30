@@ -1,3 +1,4 @@
+// backend/routers/employee.js
 const express = require("express");
 const Employee = require("../models/employeeSchema");
 const { body, validationResult } = require("express-validator");
@@ -5,7 +6,7 @@ const { body, validationResult } = require("express-validator");
 const router = express.Router();
 
 // Get all employees
-router.get("/employees", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const employees = await Employee.find();
     res.status(200).json(employees);
@@ -16,7 +17,7 @@ router.get("/employees", async (req, res) => {
 
 // Create a new employee
 router.post(
-  "/employees",
+  "/",
   [
     body("first_name").isString(),
     body("last_name").isString(),
@@ -45,7 +46,7 @@ router.post(
 );
 
 // Get an employee by ID
-router.get("/employees/:eid", async (req, res) => {
+router.get("/:eid", async (req, res) => {
   try {
     const employee = await Employee.findById(req.params.eid);
     if (!employee)
@@ -58,7 +59,7 @@ router.get("/employees/:eid", async (req, res) => {
 });
 
 // Update an employee by ID
-router.put("/employees/:eid", async (req, res) => {
+router.put("/:eid", async (req, res) => {
   try {
     const employee = await Employee.findByIdAndUpdate(
       req.params.eid,
@@ -75,13 +76,49 @@ router.put("/employees/:eid", async (req, res) => {
 });
 
 // Delete an employee by ID
-router.delete("/employees", async (req, res) => {
-  const { eid } = req.query;
+router.delete("/:id", async (req, res) => {
   try {
-    const result = await Employee.findByIdAndDelete(eid);
-    if (!result) return res.status(404).json({ message: "Employee not found" });
+    const result = await Employee.findByIdAndDelete(req.params.id);
+    if (!result) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+    res.status(200).json({ message: "Employee deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-    res.status(200).json({ message: "Employee deleted successfully." });
+// Search employees by department or position
+// Place the /search route BEFORE the /:eid route
+router.get("/search", async (req, res) => {
+  const { department, position } = req.query;
+
+  if (!department && !position) {
+    return res.status(400).json({ message: "No search criteria provided" });
+  }
+
+  try {
+    const query = {};
+    if (department) query.department = { $regex: department, $options: "i" };
+    if (position) query.position = { $regex: position, $options: "i" };
+
+    const employees = await Employee.find(query);
+    res.status(200).json(employees);
+  } catch (error) {
+    console.error("Error in search route:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// This should come AFTER /search
+router.get("/:eid", async (req, res) => {
+  try {
+    const employee = await Employee.findById(req.params.eid);
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    res.status(200).json(employee);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

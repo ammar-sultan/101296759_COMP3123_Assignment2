@@ -1,0 +1,42 @@
+# on the root docker-compose.yml
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    build:
+      context: ./backend
+    container_name: backend
+    ports:
+      - "5050:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      mongo:
+        condition: service_started
+    environment:
+      # Load the MONGO_URI from the .env file
+      MONGO_URI: mongodb+srv://adminMain:ILoveMyExBaoBao3214@cluster0.7w5h5.mongodb.net/AssignmentTwo?retryWrites=true&w=majority
+    command: npm run dev
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    stdin_open: true
+
+volumes:
+  mongo-data:
