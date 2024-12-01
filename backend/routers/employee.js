@@ -45,19 +45,6 @@ router.post(
   }
 );
 
-// Get an employee by ID
-router.get("/:eid", async (req, res) => {
-  try {
-    const employee = await Employee.findById(req.params.eid);
-    if (!employee)
-      return res.status(404).json({ message: "Employee not found" });
-
-    res.status(200).json(employee);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
 // Update an employee by ID
 router.put("/:eid", async (req, res) => {
   try {
@@ -92,6 +79,7 @@ router.delete("/:id", async (req, res) => {
 // Place the /search route BEFORE the /:eid route
 router.get("/search", async (req, res) => {
   const { department, position } = req.query;
+  console.log("Search parameters:", department, position);
 
   if (!department && !position) {
     return res.status(400).json({ message: "No search criteria provided" });
@@ -103,24 +91,24 @@ router.get("/search", async (req, res) => {
     if (position) query.position = { $regex: position, $options: "i" };
 
     const employees = await Employee.find(query);
-    res.status(200).json(employees);
+    return res.status(200).json(employees);
   } catch (error) {
     console.error("Error in search route:", error);
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 });
 
 // This should come AFTER /search
-router.get("/:eid", async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    const employee = await Employee.findById(req.params.eid);
+    const employee = await Employee.findById(req.params.id);
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
-
     res.status(200).json(employee);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error("Error fetching employee by ID:", error);
+    res.status(500).json({ error: error.message });
   }
 });
 
