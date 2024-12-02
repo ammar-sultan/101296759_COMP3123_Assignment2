@@ -57,23 +57,6 @@ The **Employee Management System** is a web application designed for managing em
 
 ---
 
-## Quick Start
-
-1. Clone the repository and navigate to the project folder:
-   ```bash
-   git clone https://github.com/your-username/employee-management-system.git
-   cd employee-management-system
-   ```
-2. Start the application:
-   ```bash
-   docker-compose up --build
-   ```
-3. Access:
-   - **Frontend**: [http://localhost:3000](http://localhost:3000)
-   - **Backend**: [http://localhost:5050/api](http://localhost:5050/api)
-
----
-
 For additional details or troubleshooting, check the comments in the code.
 
 ---
