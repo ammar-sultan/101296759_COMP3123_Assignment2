@@ -23,7 +23,6 @@ services:
       mongo:
         condition: service_started
     environment:
-      # Load the MONGO_URI from the .env file
       MONGO_URI: mongodb+srv://adminMain:ILoveMyExBaoBao3214@cluster0.7w5h5.mongodb.net/AssignmentTwo?retryWrites=true&w=majority
     command: npm run dev
 
